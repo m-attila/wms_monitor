@@ -31,7 +31,7 @@ filter_variables(Variables, <<>>) ->
   Variables;
 filter_variables(Variables, BeginOnVariableName) ->
   maps:filter(
-    fun(K, V) ->
+    fun(K, _) ->
       case binary:match(K, BeginOnVariableName) of
         {0, _} ->
           true;

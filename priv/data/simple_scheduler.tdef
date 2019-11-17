@@ -1,0 +1,44 @@
+% scheduler task: wait for timer event and schedule next run
+#{
+    name => <<"SCHEDULER_TASK">>,
+    type => auto,
+    definition => [
+        {rule,
+            {
+                [{set, { {global, <<"scheduler.next_run">>}, exists, false } }],
+                [
+                    {cmd, {move, {private, now}, {global, <<"scheduler.next_run">>} }},
+                    {cmd, {move, 0, {global, <<"scheduler.counter">>} }}
+                ]
+            }
+        },
+        {rule,
+            {
+                [{set, { {global, <<"scheduler.next_run">>}, exists, true } }],
+                [
+                    {cmd, {wait, any, [timer]}},
+
+                    {rule,
+                        {
+                            [{set, { {global, <<"scheduler.next_run">>}, '<', {private, now} } }],
+                            [
+                                {cmd, {
+                                     move,
+                                        { {global, <<"scheduler.counter">>} , {'+', 1 }},
+                                            {global, <<"scheduler.counter">>}
+                                     }
+                                },
+                                {cmd, {
+                                    move,
+                                        { {private, now} , {{'+', second}, 30}},
+                                            {global, <<"scheduler.next_run">>}
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}.

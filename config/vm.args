@@ -1,0 +1,4 @@
+-sname ${WMS_MONITOR_NODE_NAME}
+-setcookie ${COOKIE}
++K true
++A30

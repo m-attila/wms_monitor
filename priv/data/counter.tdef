@@ -1,0 +1,28 @@
+% counter task: first, initialize global variable, then increment it
+#{
+    name => <<"COUNTER_TASK">>,
+    type => manual,
+    definition => [
+        {rule,
+            {
+                [{set, { {global, <<"counter.value">>}, exists, false } }],
+                [
+                    {cmd, {move, 0, {global, <<"counter.value">>} }}
+                ]
+            }
+        },
+        {rule,
+            {
+                [{set, { {global, <<"counter.value">>}, exists, true } }],
+                [
+                    {cmd, {
+                         move,
+                            { {global, <<"counter.value">>} , {'+', 1 }},
+                            {global, <<"counter.value">>}
+                         }
+                    }
+                ]
+            }
+        }
+    ]
+}.

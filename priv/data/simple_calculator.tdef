@@ -1,0 +1,122 @@
+% setter task: set operand to global variables and operation, then
+% fire event for calculator task
+#{
+    name => <<"CALC_SETTER_TASK">>,
+    type => manual,
+    definition => [
+        {rule,
+            {
+                [],
+                [
+                    % set initial operands
+                    {cmd, {move, 10, {global, <<"calc.operand1">>}}},
+                    {cmd, {move, 20, {global, <<"calc.operand2">>}}},
+
+                    % add operand1 and operand2
+                    {cmd, {move, "+",{global, <<"calc.operation">>}}},
+                    {cmd, {fire, {mandatory, <<"calc.execute">>}}},
+                    {cmd, {wait, any, [<<"calc.ready">>]}},
+                    {cmd, {move, {global, <<"calc.result">>}, {global, <<"calc.add_result">>}}},
+
+                    % subtract operand1 and operand2
+                    {cmd, {move, "-",{global, <<"calc.operation">>}}},
+                    {cmd, {fire, {mandatory, <<"calc.execute">>}}},
+                    {cmd, {wait, any, [<<"calc.ready">>]}},
+                    {cmd, {move, {global, <<"calc.result">>}, {global, <<"calc.sub_result">>}}},
+
+                    % multiple operand1 and operand2
+                    {cmd, {move, "*",{global, <<"calc.operation">>}}},
+                    {cmd, {fire, {mandatory, <<"calc.execute">>}}},
+                    {cmd, {wait, any, [<<"calc.ready">>]}},
+                    {cmd, {move, {global, <<"calc.result">>}, {global, <<"calc.mul_result">>}}},
+
+                    % divide operand1 and operand2
+                    {cmd, {move, "/",{global, <<"calc.operation">>}}},
+                    {cmd, {fire, {mandatory, <<"calc.execute">>}}},
+                    {cmd, {wait, any, [<<"calc.ready">>]}},
+                    {cmd, {move, {global, <<"calc.result">>}, {global, <<"calc.div_result">>}}}
+                ]
+            }
+        }
+    ]
+}.
+
+% calculator task: wait for "execute: event, perform operation on
+% "operand1: and :operand2:, set result value to "result" and
+% fire "ready" event
+#{
+    name => <<"CALC_EXEC_TASK">>,
+    type => auto,
+    definition => [
+        {rule,
+            {
+                [],
+                [
+                    {cmd, {move, {private, now}, {private, <<"calc.start_wait">>}}},
+                    {cmd, {wait, any, [<<"calc.execute">>]}},
+                    % add operation
+                    {rule,
+                        {
+                            [{set, {{global, <<"calc.operation">>}, '=', "+"}}],
+                            [
+                                {cmd, {
+                                     move,
+                                        { {global, <<"calc.operand1">>} , {'+', {global, <<"calc.operand2">>} }},
+                                        {global, <<"calc.result">>}
+                                     }
+                                }
+                            ]
+                        }
+                    },
+
+                    % subtract operation
+                    {rule,
+                        {
+                            [{set, {{global, <<"calc.operation">>}, '=', "-"}}],
+                            [
+                                {cmd, {
+                                     move,
+                                        { {global, <<"calc.operand1">>} , {'-', {global, <<"calc.operand2">>} }},
+                                        {global, <<"calc.result">>}
+                                     }
+                                }
+                            ]
+                        }
+                    },
+
+                    % multiple operation
+                    {rule,
+                        {
+                            [{set, {{global, <<"calc.operation">>}, '=', "*"}}],
+                            [
+                                {cmd, {
+                                     move,
+                                        { {global, <<"calc.operand1">>} , {'*', {global, <<"calc.operand2">>} }},
+                                        {global, <<"calc.result">>}
+                                     }
+                                }
+                            ]
+                        }
+                    },
+
+                    % divide operation
+                    {rule,
+                        {
+                            [{set, {{global, <<"calc.operation">>}, '=', "/"}}],
+                            [
+                                {cmd, {
+                                     move,
+                                        { {global, <<"calc.operand1">>} , {'/', {global, <<"calc.operand2">>} }},
+                                        {global, <<"calc.result">>}
+                                     }
+                                }
+                            ]
+                        }
+                    },
+                    {cmd, {fire, {mandatory, <<"calc.ready">>}}}
+
+                ]
+            }
+        }
+    ]
+}.

@@ -1,0 +1,100 @@
+% card transactions task: it starts by manually, generate card transaction file
+% into tmp directory. Stores file path in "card.file" global
+% variable then fire event "card.file_ready"
+% Not run, is "card.file" variable is not empty, because previous file was not
+% processed yet.
+#{
+    name => <<"CARD_TRANSACTIONS">>,
+    type => manual,
+    definition => [
+        % if "card.file" global variable does not exist yet
+        {rule,
+            {
+                [{set, { {global, <<"card.file">>}, exists, false } }],
+                [
+                    {cmd, {move, "", {global, <<"card.file">>} }}
+                ]
+            }
+        },
+        % if "card.file" global variable exists
+        {rule,
+            {
+                [{set, { {global, <<"card.file">>}, exists, true } }],
+                [
+                    % if "card.file" variable is empty
+                    {rule,
+                        {
+                            [{set, { {global, <<"card.file">>}, '=', "" }}],
+                            [
+                                {call,
+                                    {
+                                        <<"generate_transaction_file">>,
+                                        [],
+                                        [{<<"filepath">>, {global, <<"card.file">>} }]
+                                    }
+                                },
+
+                                {cmd, {fire, {mandatory, <<"card.file_ready">>}}}
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}.
+
+% account load trans task: it waits for "card.file_ready" event,
+% execute "load_transaction_file" transaction to load file into database
+% then fire "account.load_ready" event
+% and set "card.file" empty string
+
+#{
+    name => <<"ACCOUNT_LOAD_TRANS">>,
+    type => auto,
+    definition => [
+        {rule,
+            {
+            [],
+            [
+                {cmd, {wait, any, [<<"card.file_ready">>]}},
+                {call,
+                    {
+                        <<"load_transaction_file">>,
+                        [{<<"filepath">>, {global, <<"card.file">>} }],
+                        []
+                    }
+                },
+                {cmd, {move, "", {global, <<"card.file">>} }},
+                {cmd, {fire, {mandatory, <<"account.load_ready">>}}}
+
+            ]
+            }
+        }
+    ]
+}.
+
+% account balance task: it waits for "account.load_ready" event, then
+% call "process_transactions" interaction
+
+#{
+    name => <<"ACCOUNT_BALANCE">>,
+    type => auto,
+    definition => [
+        {rule,
+            {
+            [],
+            [
+                {cmd, {wait, any, [<<"account.load_ready">>]}},
+                {call,
+                    {
+                        <<"process_transactions">>,
+                        [],
+                        []
+                    }
+                }
+            ]
+            }
+        }
+    ]
+}.

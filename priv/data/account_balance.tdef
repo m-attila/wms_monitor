@@ -1,10 +1,11 @@
-% card transactions task: it starts by manually, generate card transaction file
+% Card transaction generator task
+% : it starts by manually, generate card transaction file
 % into tmp directory. Stores file path in "card.file" global
 % variable then fire event "card.file_ready"
 % Not run, is "card.file" variable is not empty, because previous file was not
 % processed yet.
 #{
-    name => <<"CARD_TRANSACTIONS">>,
+    name => <<"CARD.TRANSACTIONS">>,
     type => manual,
     definition => [
         % if "card.file" global variable does not exist yet
@@ -44,13 +45,14 @@
     ]
 }.
 
-% account load trans task: it waits for "card.file_ready" event,
+% Account transaction loader task
+% Waits for "card.file_ready" event,
 % execute "load_transaction_file" transaction to load file into database
 % then fire "account.load_ready" event
 % and set "card.file" empty string
 
 #{
-    name => <<"ACCOUNT_LOAD_TRANS">>,
+    name => <<"ACCOUNT.LOAD_TRANS">>,
     type => auto,
     definition => [
         {rule,
@@ -74,11 +76,12 @@
     ]
 }.
 
-% account balance task: it waits for "account.load_ready" event, then
+% Account balance handler task
+% Waits for "account.load_ready" event, then
 % call "process_transactions" interaction
 
 #{
-    name => <<"ACCOUNT_BALANCE">>,
+    name => <<"ACCOUNT.BALANCE">>,
     type => auto,
     definition => [
         {rule,

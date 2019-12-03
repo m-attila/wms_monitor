@@ -1,6 +1,6 @@
-% scheduler task: wait for timer event and schedule next run
+% scheduler sample task: wait for timer event and schedule next run
 #{
-    name => <<"SCHEDULER_TASK">>,
+    name => <<"SCHEDULER.SAMPLE">>,
     type => auto,
     definition => [
         {rule,

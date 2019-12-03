@@ -1,7 +1,7 @@
 % setter task: set operand to global variables and operation, then
 % fire event for calculator task
 #{
-    name => <<"CALC_SETTER_TASK">>,
+    name => <<"CALCULATOR.SETTER">>,
     type => manual,
     definition => [
         {rule,

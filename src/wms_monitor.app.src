@@ -1,5 +1,5 @@
 {application, wms_monitor,
-  [{description, "An OTP application"},
+  [{description, "Monitor implementation"},
    {vsn, "0.1.0"},
    {registered, []},
    {mod, {wms_monitor_app, []}},
